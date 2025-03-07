@@ -1,0 +1,6 @@
+Once thr docker image is downloaded
+
+use these docker commands in terminal
+
+docker build -t face_attendance .
+docker run -p 5000:5000 -v "${PWD}\app\database:/app/database" -v "${PWD}\app\attendance_logs:/app/attendance_logs" face_attendance     

@@ -1,0 +1,6 @@
+roll,name,status,confidence,time,face_number
+6001,Abhishek,Present,65.11%,2025-02-28 09:51:07,1
+5071,Harshal,Present,65.70%,2025-02-28 09:51:07,2
+6001,Abhishek,Present,62.02%,2025-02-28 09:51:51,1
+Unknown,Unknown,Unknown,0%,2025-02-28 09:51:51,2
+Unknown,Unknown,Unknown,0%,2025-02-28 09:51:51,3

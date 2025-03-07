@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Face Attendance System</h1>
+            <div class="nav-menu">
+                <a href="{{ url_for('register_page') }}">Register Student</a>
+                <a href="{{ url_for('attendance_page') }}">Mark Attendance</a>
+            </div>
+        </div>
+        
+        <div class="content">
+            <h2>Welcome to Face Attendance System</h2>
+            <p>Choose an option from the menu above to:</p>
+            <ul>
+                <li>Register new students with multiple face angles</li>
+                <li>Mark attendance using group photos</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

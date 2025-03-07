@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Student - Face Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Register Student</h1>
+            <div class="nav-menu">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('attendance_page') }}">Mark Attendance</a>
+            </div>
+        </div>
+
+        <div class="camera-container">
+            <video id="video" autoplay playsinline></video>
+            
+            <div class="controls">
+                <div class="input-group">
+                    <input type="text" id="name-input" placeholder="Enter student name" required>
+                    <input type="text" id="roll-input" placeholder="Enter roll number" required>
+                </div>
+                <div class="input-group">
+                    <button class="button" onclick="takePhoto('front')">Take Front Photo</button>
+                    <button class="button" onclick="takePhoto('left')">Take Left Photo</button>
+                    <button class="button" onclick="takePhoto('right')">Take Right Photo</button>
+                </div>
+            </div>
+
+            <div class="photos-container">
+                <div id="front-photo" class="photo-slot">
+                    <span>Front</span>
+                    <canvas id="front-canvas" style="display: none;"></canvas>
+                </div>
+                <div id="left-photo" class="photo-slot">
+                    <span>Left</span>
+                    <canvas id="left-canvas" style="display: none;"></canvas>
+                </div>
+                <div id="right-photo" class="photo-slot">
+                    <span>Right</span>
+                    <canvas id="right-canvas" style="display: none;"></canvas>
+                </div>
+            </div>
+
+            <button id="submit-btn" class="button" onclick="registerStudent()" disabled>Register Student</button>
+            <button class="button" onclick="resetRegistration()">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        let stream;
+        let photosTaken = {
+            front: null,
+            left: null,
+            right: null
+        };
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                await video.play();
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Error accessing camera: ' + err.message);
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        function takePhoto(angle) {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById(`${angle}-canvas`);
+            const photoSlot = document.getElementById(`${angle}-photo`);
+            
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Draw video frame to canvas
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Get base64 data
+            const imageData = canvas.toDataURL('image/jpeg');
+            
+            // Store the photo data
+            photosTaken[angle] = imageData;
+            
+            // Display the photo
+            photoSlot.style.backgroundImage = `url(${imageData})`;
+            
+            checkPhotosComplete();
+        }
+
+        function checkPhotosComplete() {
+            const isComplete = photosTaken.front && photosTaken.left && photosTaken.right;
+            document.getElementById('submit-btn').disabled = !isComplete;
+        }
+
+        async function registerStudent() {
+            const name = document.getElementById('name-input').value;
+            const roll = document.getElementById('roll-input').value;
+            
+            if (!name || !roll) {
+                alert('Please enter both name and roll number');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('roll', roll);
+            
+            // Append photos
+            for (const [angle, data] of Object.entries(photosTaken)) {
+                if (data) {
+                    formData.append(`${angle}_photo`, data);
+                }
+            }
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+                
+                if (result.success) {
+                    resetRegistration();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error registering student: ' + error.message);
+            }
+        }
+
+        function resetRegistration() {
+            photosTaken = {
+                front: null,
+                left: null,
+                right: null
+            };
+            
+            ['front', 'left', 'right'].forEach(angle => {
+                const photoSlot = document.getElementById(`${angle}-photo`);
+                photoSlot.style.backgroundImage = '';
+                const canvas = document.getElementById(`${angle}-canvas`);
+                const context = canvas.getContext('2d');
+                context.clearRect(0, 0, canvas.width, canvas.height);
+            });
+            
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('name-input').value = '';
+            document.getElementById('roll-input').value = '';
+        }
+
+        // Start camera when page loads
+        window.onload = startCamera;
+        
+        // Stop camera when leaving page
+        window.onbeforeunload = stopCamera;
+    </script>
+</body>
+</html>

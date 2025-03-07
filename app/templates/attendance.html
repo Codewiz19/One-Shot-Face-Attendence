@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mark Attendance - Face Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mark Attendance</h1>
+            <div class="nav-menu">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('register_page') }}">Register Student</a>
+            </div>
+        </div>
+
+        <div class="attendance-container">
+            <div class="controls">
+                <input type="file" id="attendance-input" accept="image/*">
+                <button class="button" onclick="markAttendance()">Mark Attendance</button>
+            </div>
+            
+            <div id="attendance-results" class="results"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
